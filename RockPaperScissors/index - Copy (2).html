@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rock Paper Scissors Part 6</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+ <div class="container">
+    
+  <div class="input-group mb-3 name-input-group">
+    
+      <div class="input-group-prepend ">
+              <button type="button" class="btn btn-primary btn-player-name">Player Name</button>
+        <!-- <span class="input-group-text smack-talk" id="inputGroup-sizing-default">Smack Talk</span> -->
+      </div>
+      <input type="text" class="form-control player-name" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+    </div>
+    <div class="card">
+        <div id="game">
+          <button type="button" class="btn btn-secondary rock">Rock</button>
+          <button type="button" class="btn btn-light paper">Paper</button>
+          <button type="button" class="btn btn-danger scissors">Scissors</button>
+  
+        </div>
+      </div>
+
+
+  <div class="input-group mb-3">
+    
+        <div class="input-group-prepend">
+                <button type="button" class="btn btn-primary btn-smack-talk">Smack Talk</button>
+          <!-- <span class="input-group-text smack-talk" id="inputGroup-sizing-default">Smack Talk</span> -->
+        </div>
+        <input type="text" class="form-control smack-talk" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+      </div>
+      <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+              <h1 class="display-4">Smack Talk</h1>
+              <p class="lead smack-talk-display"></p>
+            </div>
+          </div>
+
+</div> 
+  <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <script>
+   
+
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAxf5tGceSV8yAVKEzq0ytMDu8yLyJTqgY",
+    authDomain: "rockpaperscissors-f446f.firebaseapp.com",
+    databaseURL: "https://rockpaperscissors-f446f.firebaseio.com",
+    projectId: "rockpaperscissors-f446f",
+    storageBucket: "rockpaperscissors-f446f.appspot.com",
+    messagingSenderId: "801656046386"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+
+  var connectionsRef = database.ref("/connections");
+
+// '.info/connected' is a special location provided by Firebase that is updated every time
+// the client's connection state changes.
+// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+var connectedRef = database.ref(".info/connected");
+
+// When the client's connection state changes...
+connectedRef.on("value", function(snap) {
+  
+  // If they are connected..
+  if (snap.val()) {
+
+    // Add user to the connections list.
+    var con = connectionsRef.push(true);
+
+    // Remove user from the connection list when they disconnect.
+    con.onDisconnect().remove();
+  }
+});
+
+// When first loaded or when the connections list changes...
+connectionsRef.on("value", function(snap) {
+
+watchers=snap.numChildren();
+// console.log(watchers);
+ 
+  // $("#watchers").text(snap.numChildren());
+});
+    // Creates an array that lists out all of the options (Rock, Paper, or Scissors).
+    
+///////////player Objects and global variables////////////////
+var playerOne = {
+  playerName:"", 
+  wins:0, 
+  losses:0, 
+  currentChoice:""
+
+}
+var playerTwo = {
+  playerName:"", 
+  wins:0, 
+  losses:0, 
+  currentChoice:""
+
+}  
+var watchers;
+var players=0;
+var playerTwoOpen=true;
+var playerOneOpen=true;
+var youAre="";
+///////////////////////////////////////////
+$("#game").hide();
+firebase.auth().signInAnonymously().catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+});
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    var isAnonymous = user.isAnonymous;
+    var uid = user.uid;
+    // console.log(uid)
+    // ...
+  } else {
+    // User is signed out.
+    // ...
+  }
+  // ...
+});
+
+ $(document).on("click",".btn-player-name",function() {
+   if($(".player-name").val().trim()=="")
+   {
+     return;
+    // $(".player-name").val("");
+   }
+   if(playerOneOpen)
+   {
+     youAre="PlayerOne"
+     playerOne.playerName=$(".player-name").val().trim();
+     playerOne.wins=0
+     playerOne.losses=0;
+     playerOne.currentChoice="";
+     database.ref("/playerOne").set({
+        playerOne: playerOne      
+      });
+     
+  }
+   else if (playerTwoOpen)
+   {
+    youAre="PlayerTwo"
+     playerTwo.playerName=$(".player-name").val().trim();
+     playerTwo.wins=0
+     playerTwo.losses=0;
+     playerTwo.currentChoice="";
+     database.ref("/playerTwo").set({
+      playerTwo: playerTwo
+      });
+    }
+   else {
+     alert("no more players")
+     youAre="JAFO"
+  }
+   $(".name-input-group").hide();
+   $("#game").show();
+ });
+ ///////////////////////RPS buttons//////////////////////////////////////////////
+ $(document).on("click",".rock",function() {
+    if(youAre=="PlayerOne")
+    {
+      playerOne.currentChoice="Rock";
+      database.ref("/playerOne").set({
+        playerOne: playerOne
+      });
+    }
+    if(youAre=="PlayerTwo")
+    {
+      playerTwo.currentChoice="Rock";
+      database.ref("/playerTwo").set({
+        playerTwo: playerTwo
+      });
+    }
+    $("#game").hide();
+
+ });
+ $(document).on("click",".paper",function() {
+  if(youAre=="PlayerOne")
+    {
+      playerOne.currentChoice="Paper";
+      database.ref("/playerOne").set({
+        playerOne: playerOne
+      });
+    }
+    if(youAre=="PlayerTwo")
+    {
+      playerTwo.currentChoice="Paper";
+      database.ref("/playerTwo").set({
+        playerTwo: playerTwo
+      });
+    }
+    $("#game").hide();
+
+  });
+ $(document).on("click",".scissors",function() {
+  if(youAre=="PlayerOne")
+    {
+      playerOne.currentChoice="Scissors";
+      database.ref("/playerOne").set({
+        playerOne: playerOne
+      });
+    }
+    if(youAre=="PlayerTwo")
+    {
+      playerTwo.currentChoice="Scissors";
+      database.ref("/playerTwo").set({
+        playerTwo: playerTwo
+      });
+    }
+    $("#game").hide();
+
+  });
+ //////////////firebase stuff
+ database.ref().on("value", function(snapshot) {
+  var ohSnap=snapshot.val();
+  // console.log(ohSnap.playerOne.playerOne.playerName)
+  if (snapshot.child("/playerOne").exists()) {
+    if (ohSnap.playerOne.playerOne.playerName=="") {
+    console.log("Player one is open")
+    playerOneOpen=true;
+  }
+  else{
+    playerOneOpen=false;
+  }
+}
+else 
+{
+  console.log("Player one is open")
+  playerOneOpen=true;
+}
+
+if (snapshot.child("/playerTwo").exists()) {
+  if (ohSnap.playerTwo.playerTwo.playerName=="") {
+    console.log("Player two is open")
+    playerTwoOpen=true;
+  }
+  else{
+    playerTwoOpen=false;
+  }
+}
+else{
+  console.log("Player two is open")
+    playerTwoOpen=true;
+}
+
+  
+});
+  </script>
+
+</body>
+
+</html>

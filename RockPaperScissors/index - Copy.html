@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rock Paper Scissors Part 6</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+ <div class="container">
+
+  <div id="game">
+    <p>Press r, p or s to start playing!</p>
+  </div>
+  <div class="input-group mb-3">
+        <div class="input-group-prepend">
+                <button type="button" class="btn btn-primary smack-talk">Smack Talk</button>
+          <!-- <span class="input-group-text smack-talk" id="inputGroup-sizing-default">Smack Talk</span> -->
+        </div>
+        <input type="text" class="form-control smack" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+      </div>
+      <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+              <h1 class="display-4">Smack Talk</h1>
+              <p class="lead smack-talk-display">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+            </div>
+          </div>
+
+</div> 
+  <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <script>
+    $(".lead").text("");
+    var smackTalk;
+
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAxf5tGceSV8yAVKEzq0ytMDu8yLyJTqgY",
+    authDomain: "rockpaperscissors-f446f.firebaseapp.com",
+    databaseURL: "https://rockpaperscissors-f446f.firebaseio.com",
+    projectId: "rockpaperscissors-f446f",
+    storageBucket: "rockpaperscissors-f446f.appspot.com",
+    messagingSenderId: "801656046386"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+
+  var connectionsRef = database.ref("/connections");
+
+// '.info/connected' is a special location provided by Firebase that is updated every time
+// the client's connection state changes.
+// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+var connectedRef = database.ref(".info/connected");
+
+// When the client's connection state changes...
+connectedRef.on("value", function(snap) {
+  
+  // If they are connected..
+  if (snap.val()) {
+
+    // Add user to the connections list.
+    var con = connectionsRef.push(true);
+
+    // Remove user from the connection list when they disconnect.
+    con.onDisconnect().remove();
+  }
+});
+
+// When first loaded or when the connections list changes...
+connectionsRef.on("value", function(snap) {
+console.log(snap.numChildren());
+  // Display the viewer count in the html.
+  // The number of online users is the number of children in the connections list.
+  // $("#watchers").text(snap.numChildren());
+});
+    // Creates an array that lists out all of the options (Rock, Paper, or Scissors).
+    var computerChoices = ["r", "p", "s"];
+    var savedVal=firebase.database().ref("smackTalk");//.get({clickCount});
+    // console.log(savedVal)
+
+    // Creating variables to hold the number of wins, losses, and ties. They start at 0.
+    var wins = 0;
+    var losses = 0;
+    var ties = 0;
+    $(document).on("click",".smack-talk",function() {
+        event.preventDefault();
+           smackTalk=$(".smack").val().trim();
+           console.log(smackTalk);
+           database.ref().set({
+        smackTalk: smackTalk
+                
+      });
+      console.log(firebase.database().ref("smackTalk"))
+        // alert("click bound to document listening for #test-element");
+        // $(".smack-talk-display").append(smackTalk+"<hr>");
+    });///////////////
+    // This function is run whenever the user presses a key.
+    document.onkeyup = function(event) {
+return;
+      // Determines which key was pressed.
+      var userGuess = event.key;
+
+      // Randomly chooses a choice from the options array. This is the Computer's guess.
+      var computerGuess = computerChoices[Math.floor(Math.random() * computerChoices.length)];
+
+      // Only run the following code block if the user presses "r" or "p" or "s".
+      if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
+
+        // If we choose rock and the computer guesses scissors, increment our wins variable.
+        if ((userGuess === "r") && (computerGuess === "s")) {
+          wins++;
+        }
+
+        // If we choose rock and the computer guesses paper, increment our losses variable.
+        if ((userGuess === "r") && (computerGuess === "p")) {
+          losses++;
+        }
+
+        // If we choose scissors and the computer guesses rock, increment our losses variable.
+        if ((userGuess === "s") && (computerGuess === "r")) {
+          losses++;
+        }
+
+        // If we choose scissors and the computer guesses paper, increment our wins variable.
+        if ((userGuess === "s") && (computerGuess === "p")) {
+          wins++;
+        }
+
+        // If we choose paper and the computer guesses rock, increment our wins variable.
+        if ((userGuess === "p") && (computerGuess === "r")) {
+          wins++;
+        }
+
+        // If we choose paper and the computer guesses scissors, increment our losses variable.
+        if ((userGuess === "p") && (computerGuess === "s")) {
+          losses++;
+        }
+
+        // If we choose the same thing as the computer, increment our ties variable.
+        if (userGuess === computerGuess) {
+          ties++;
+        }
+
+        // Creating a variable to hold our new HTML. Our HTML now keeps track of the user and computer guesses, and wins/losses/ties.
+        var html =
+          "<p>You chose: " + userGuess + "</p>" +
+          "<p>The computer chose: " + computerGuess + "</p>" +
+          "<p>wins: " + wins + "</p>" +
+          "<p>losses: " + losses + "</p>" +
+          "<p>ties: " + ties + "</p>";
+
+        // Set the inner HTML contents of the #game div to our html string
+        document.querySelector("#game").innerHTML = html;
+      }
+    };
+    
+    database.ref().on("value", function(snapshot) { //fires when database changes
+      //  savedVal=firebase.database().ref("smackTalk");//.get({clickCount});
+      // console.log(savedVal)
+     
+      var smackTalked=snapshot.val();
+      // console.log(smackTalked.smackTalk);
+      $(".smack-talk-display").append(smackTalked.smackTalk +"<hr>");
+    //   $("#click-value").text(snapshot.val().clickCount);
+    //   clickCounter = snapshot.val().clickCount;
+    }, function(errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
+
+   
+  </script>
+
+</body>
+
+</html>

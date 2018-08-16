@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Train Schedule</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+    <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Train Name</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Frequency (min)</th>
+            <th scope="col">Next Arrival</th>
+            <th scope="col">Minutes Away</th>
+
+
+          </tr>
+        </thead>
+        <tbody class="train-table">
+          <tr class="train-data">
+            <td class="train-name-d"></td>
+            <td class="train-destination-d"></td>
+            <td class="train-frequency-d"></td>
+            <td class="train-next-d"></td>
+            <td class="train-minutes-d"></td>
+
+          </tr>
+          
+        </tbody>
+      </table>
+  <p class = "TS"></p>
+  <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+          <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text " id="basic-addon1">Train Name</span>
+              </div>
+              <input type="text" class="form-control train-name" placeholder="Train Name" aria-label="Train Name" aria-describedby="basic-addon1">
+
+            </div>
+            <!-- new button -->
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text " id="basic-addon1">Destination</span>
+                </div>
+                <input type="text" class="form-control train-destination" placeholder="Destination" aria-label="Destination" aria-describedby="basic-addon1">
+  
+              </div>
+              <!-- new button -->
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text " id="basic-addon1">First Train</span>
+                </div>
+                <input type="text" class="form-control train-first" placeholder="First Train" aria-label="First Train" aria-describedby="basic-addon1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text " id="basic-addon1">Frequency</span>
+                  </div>
+                  <input type="text" class="form-control train-frequency" placeholder="Frequency" aria-label="Frequency" aria-describedby="basic-addon1">
+              </div>
+              <button type="button" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+<script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+<script src="https://code.jquery.com/jquery.js"></script>
+
+<script>
+  var trainData = [];
+  var allTrainData =[];
+  var trainName;
+  var trainDestination;
+  var firstTrainTime;
+  var trainFrequency;
+  // Initialize Firebase///////////////////////////////////////////////////////
+  var config = {
+    apiKey: "AIzaSyCsg-nfIS20eX4KBZmAoJdy3wXL2NEViLM",
+    authDomain: "train-a0032.firebaseapp.com",
+    databaseURL: "https://train-a0032.firebaseio.com",
+    projectId: "train-a0032",
+    storageBucket: "train-a0032.appspot.com",
+    messagingSenderId: "580808417196"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+
+////////////take snapshot///////////////////////////////////////////////
+
+   database.ref().on("value", function(snapshot) { //fires when value changes
+     
+      var ohSnap=snapshot.val();
+      allTrainData=JSON.parse(ohSnap.stringified)
+      // console.log(allTrainData[0][0]);
+      // console.log(ohSnap.trainName);
+      // console.log(ohSnap.trainDestination);
+      // console.log(ohSnap.firstTrainTime);
+      // console.log(ohSnap.trainFrequency);
+      var trainTable=$(".train-table");
+      var trainData = $(".train-data");
+      var trainDataName= $(".train-name-d");
+      var trainDataDest= $(".train-destination-d");
+      var trainDataFreq= $(".train-frequency-d");
+      var trainDataNext= $(".train-next-d");
+      var trainDataMin= $(".train-minutes-d");
+      
+     for(var i=0;i<allTrainData.length;i++)
+     {
+      trainDataName.append(allTrainData[i][0]+" <hr>");
+      trainDataDest.append(allTrainData[i][1]+"<hr>");
+      trainDataFreq.append(allTrainData[i][2]+"<hr>");
+      trainDataNext.append(allTrainData[i][3]+"<hr>");
+      // trainDataMin.append(allTrainData[i][4]+"<hr>");
+     }
+      // trainDataName.append(ohSnap.trainName+" <hr>");
+      // trainDataDest.append(ohSnap.trainDestination+"<hr>");
+      // trainDataFreq.append(ohSnap.trainFrequency+"<hr>");
+      // trainDataNext.append(ohSnap.firstTrainTime+"<hr>");
+      // trainDataMin.append(ohSnap.firstTrainTime+"<hr>");
+      // trainData.push(ohSnap.trainName);
+      // trainData.push(ohSnap.trainDestination);
+      // trainData.push(ohSnap.firstTrainTime);
+      // trainData.push(ohSnap.trainFrequency);
+// console.log(trainData)
+    // ParseTrainData(trainData);
+
+     // $("tbody").append("<tr>").append("<td>").append(ohSnap.trainName)
+      // $(".TS").append(smackTalked.smackTalk +"<hr>");
+    //   $("#click-value").text(snapshot.val().clickCount);
+    //   clickCounter = snapshot.val().clickCount;
+    }, function(errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
+
+    /////////////add new train////////////////
+    $(document).on("click",".btn",function() {
+      event.preventDefault();
+     
+    //   $(".train-data").empty();
+    //   $(".train-name-d").empty();
+    //   $(".train-destination-d").empty();
+    //   $(".train-frequency-d").empty();
+    //   $(".train-next-d").empty();
+    //  $(".train-minutes-d").empty();
+      // trainDataName.empty();
+      // trainData.empty();
+      // trainTable.empty();
+      // trainData.empty();
+
+      trainName=$(".train-name").val().trim();
+      trainDestination=$(".train-destination").val().trim();;
+      firstTrainTime=$(".train-first").val().trim();;
+      trainFrequency=$(".train-frequency").val().trim();;
+      if(trainName==""||trainDestination==""||firstTrainTime==""||trainFrequency=="")
+      {
+        alert("Fill in all fields")
+        return;
+      }
+      trainData.push(trainName);
+      trainData.push(trainDestination);
+      trainData.push(firstTrainTime);
+      trainData.push(trainFrequency);
+      // console.log(trainData)
+      allTrainData.push(trainData);
+      console.log(allTrainData)
+      var stringified = JSON.stringify(allTrainData);// ParseTrainData(trainData);  
+      database.ref().set({
+        trainName: trainName,
+        trainDestination: trainDestination,
+        firstTrainTime: firstTrainTime,
+        trainFrequency: trainFrequency,
+        stringified: stringified
+                
+      });
+      // console.log(trainName+" / "+trainDestination+" / "+firstTrainTime+" / "+trainFrequency);
+
+       });
+       ///////////////////////////
+       function ParseTrainData(array)
+       {
+          allTrainData.push(array);
+          JSON.stringify(allTrainData);
+          var stringified = JSON.stringify(allTrainData);
+          var unstringified = JSON.parse(stringified);
+          console.log(stringified);
+          console.log(unstringified);
+          database.ref().set({
+            stringified: stringified
+          });
+       }
+</script>
+</body>
+</html>
