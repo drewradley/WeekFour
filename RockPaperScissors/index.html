@@ -453,7 +453,7 @@ function TakeSnap()
 
 /////////////////////smack talk//////////////
 $(document).on("click",".btn-smack-talk",function() {
-        event.preventDefault();
+        // event.preventDefault();
            smackTalk=$(".smack-talk").val().trim();
            if(smackTalk=="")return;
            $(".smack-talk").val("")
