@@ -92,7 +92,7 @@ connectedRef.on("value", function(snap) {
 
     // Add user to the connections list.
     var con = connectionsRef.push(true);
-
+    
     // Remove user from the connection list when they disconnect.
     con.onDisconnect().remove();
   }
@@ -102,6 +102,33 @@ connectedRef.on("value", function(snap) {
 connectionsRef.on("value", function(snap) {
 
 watchers=snap.numChildren();
+if (watchers==1)
+{
+  // if(ur=="PlayerOne")
+    // { 
+      sessionStorage.removeItem("youAre")
+      playerOneOpen=true;
+      playerOne.playerName="";
+      playerOne.wins=0;
+      playerOne.losses=0;
+      playerOne.currentChoice="";
+      database.ref("/playerOne").set({
+          playerOne: playerOne      
+          });
+    // }
+    // if(ur=="PlayerTwo")
+      // {
+      sessionStorage.removeItem("youAre")
+      playerTwoOpen=true;
+      playerTwo.playerName="";
+      playerTwo.wins=0
+      playerTwo.losses=0;
+      playerTwo.currentChoice="";
+      database.ref("/playerTwo").set({
+        playerTwo: playerTwo      
+      });
+    // }
+}
 // console.log(watchers);
  
   // $("#watchers").text(snap.numChildren());
@@ -173,6 +200,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     // console.log(uid)
     // ...
   } else {
+    console.log("someone left")
     // User is signed out.
     // ...
   }
@@ -471,7 +499,7 @@ $(document).on("click",".btn-smack-talk",function() {
       var myVar;
 
 
-    myVar = setTimeout(SmackDown, 5000);
+    myVar = setTimeout(SmackDown, 10000);
       // console.log(firebase.database().ref("smackTalk"))
         // alert("click bound to document listening for #test-element");
         // $(".smack-talk-display").append(smackTalk+"<hr>");
