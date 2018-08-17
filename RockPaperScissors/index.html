@@ -9,7 +9,8 @@
 
 <body>
  <div class="container">
-    
+    <hr><p class=name-space><hr>
+    </p>
   <div class="input-group mb-3 name-input-group">
     
       <div class="input-group-prepend ">
@@ -28,7 +29,7 @@
       </div>
 <center>
       <button type="button" class="btn btn-primary rage-quit">Quit</button>
-      <button type="button" class="btn btn-primary reset">Reset</button>
+      <!-- <button type="button" class="btn btn-primary reset">Reset</button> -->
       <hr>
 </center>
   <div class="input-group mb-3">
@@ -40,12 +41,21 @@
         <input type="text" class="form-control smack-talk" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
       </div>
       <div class="jumbotron jumbotron-fluid">
+          <div class="container">
+            <h1 class="display-3">Smack Talk</h1>
+            <p class="lead smack-talk-display"></p>
+
+          </div>
+          <hr>
+          <div class="container">
+          <div >
             <div class="container">
-              <h1 class="display-4">Smack Talk</h1>
-              <p class="lead smack-talk-display"></p>
-              <p class="lead wins-losses"></p>
+              <h1 class="display-4"></h1>
+              <p class="lead results-display"></p>
+              <!-- <p class="lead wins-losses"></p> -->
 
             </div>
+      </div>
           </div>
 
 </div> 
@@ -119,8 +129,33 @@ var playerTwoOpen=true;
 var playerOneOpen=true;
 var youAre="";
 var ohSnap;
-///////////////////////////////////////////
 $("#game").hide();
+var tempUR=sessionStorage.getItem("youAre");
+var tempChoice=sessionStorage.getItem("currentChoice");
+
+if(tempUR=="PlayerOne"){
+  youAre="PlayerOne";
+  // console.log("you are "+playerOne.playerName)
+  
+  if(tempChoice=="") $("#game").show();
+  else 
+    {
+      playerOne.currentChoice=tempChoice;
+      $("#game").hide();
+    }
+}
+
+if(tempUR=="PlayerTwo"){
+  youAre="PlayerTwo";
+  // console.log("you are"+playerOne.playerName)
+  
+  if(tempChoice=="") $("#game").show();
+  else 
+    {
+      playerTwo.currentChoice=tempChoice;
+      $("#game").hide();
+    }
+}
 
 ////////////////////////////////////anonymous auth boilerplate
 firebase.auth().signInAnonymously().catch(function(error) {
@@ -150,8 +185,11 @@ $(document).on("click",".rage-quit",function() {
     $("#game").hide();
     $(".display-4").text("Quitter!");
     $(".lead").text("");
-  if(youAre=="PlayerOne")
+    $(".name-space").empty();
+    var ur=sessionStorage.getItem("youAre");
+  if(ur=="PlayerOne")
     { 
+      sessionStorage.removeItem("youAre")
       playerOneOpen=true;
       playerOne.playerName="";
       playerOne.wins=0;
@@ -161,8 +199,9 @@ $(document).on("click",".rage-quit",function() {
           playerOne: playerOne      
           });
     }
-    if(youAre=="PlayerTwo")
+    if(ur=="PlayerTwo")
       {
+      sessionStorage.removeItem("youAre")
       playerTwoOpen=true;
       playerTwo.playerName="";
       playerTwo.wins=0
@@ -176,17 +215,19 @@ $(document).on("click",".rage-quit",function() {
 });
 
 ////////////////////////reset////////////////////////////////////
-$(document).on("click",".reset",function() {
+function Reset()
+// $(document).on("click",".reset",function() 
+{
   $(".player-name").val("")
   $(".name-input-group").hide();
     $("#game").show();
+    sessionStorage.removeItem("currentChoice");
     $(".display-4").text("Game Reset");
-    $(".smack-talk-display").text("Next Round Begins!");
-    $(".wins-losses").text(`${ohSnap.playerOne.playerOne.playerName} wins: ${ohSnap.playerOne.playerOne.wins} and ${ohSnap.playerTwo.playerTwo.playerName} wins: ${ohSnap.playerTwo.playerTwo.wins}`)
+    $(".results-display").text("Next Round Begins!");
   if(youAre=="PlayerOne")
     { playerOne.playerName=playerOne.playerName;
-      playerOne.wins=playerOne.wins
-      playerOne.losses=playerOne.losses;
+      // playerOne.wins=playerOne.wins
+      // playerOne.losses=playerOne.losses;
       playerOne.currentChoice="";
       database.ref("/playerOne").set({
           playerOne: playerOne      
@@ -195,15 +236,17 @@ $(document).on("click",".reset",function() {
     if(youAre=="PlayerTwo")
       {
       playerTwo.playerName=playerTwo.playerName;
-      playerTwo.wins=playerTwo.wins;
-      playerTwo.losses=playerTwo.losses;
+      // playerTwo.wins=playerTwo.wins;
+      // playerTwo.losses=playerTwo.losses;
       playerTwo.currentChoice="";
       database.ref("/playerTwo").set({
         playerTwo: playerTwo      
       });
     }
-    
-});
+    // $(".wins-losses").text(`${ohSnap.playerOne.playerOne.playerName} wins: ${ohSnap.playerOne.playerOne.wins} and ${ohSnap.playerTwo.playerTwo.playerName} wins: ${ohSnap.playerTwo.playerTwo.wins}`)
+
+}
+//);
 
 ///////////////////player name
  $(document).on("click",".btn-player-name",function() {
@@ -214,10 +257,11 @@ $(document).on("click",".reset",function() {
    }
    if(playerOneOpen)
    {
-     youAre="PlayerOne"
+     youAre="PlayerOne";
+     sessionStorage.setItem("youAre", youAre);
      playerOne.playerName=$(".player-name").val().trim();
-     playerOne.wins=0
-     playerOne.losses=0;
+    //  playerOne.wins=0
+    //  playerOne.losses=0;
      playerOne.currentChoice="";
      database.ref("/playerOne").set({
         playerOne: playerOne      
@@ -227,9 +271,10 @@ $(document).on("click",".reset",function() {
    else if (playerTwoOpen)
    {
     youAre="PlayerTwo"
+    sessionStorage.setItem("youAre", youAre);
      playerTwo.playerName=$(".player-name").val().trim();
-     playerTwo.wins=0
-     playerTwo.losses=0;
+    //  playerTwo.wins=0
+    //  playerTwo.losses=0;
      playerTwo.currentChoice="";
      database.ref("/playerTwo").set({
       playerTwo: playerTwo
@@ -300,8 +345,18 @@ $(document).on("click",".reset",function() {
  //////////////firebase snapshot/////////////////////////////////////////////
  database.ref().on("value", function(snapshot) {
    ohSnap=snapshot.val();
-  console.log(ohSnap.playerOne.playerOne.playerName);
-  console.log(ohSnap.playerTwo.playerTwo.playerName)
+   $(".smack-talk-display").text(ohSnap.smackTalk.smackTalk);
+   var ur=sessionStorage.getItem("youAre");
+   if(ur=="PlayerOne")
+   {
+    $(".name-space").text(ohSnap.playerOne.playerOne.playerName);
+   }
+   else if(ur=="PlayerTwo") 
+   {
+    $(".name-space").text(ohSnap.playerTwo.playerTwo.playerName);
+   }
+  else $(".name-space").text="";
+  
   if (snapshot.child("/playerOne").exists()) {
     if (ohSnap.playerOne.playerOne.playerName=="") {
     // console.log("Player one is open")
@@ -309,9 +364,18 @@ $(document).on("click",".reset",function() {
   }
   else{
     playerOneOpen=false;
+    playerOne.playerName=ohSnap.playerOne.playerOne.playerName;
+    playerOne.currentChoice=ohSnap.playerOne.playerOne.currentChoice;
+    playerOne.wins=ohSnap.playerOne.playerOne.wins;
+    playerOne.losses=ohSnap.playerOne.playerOne.losses;
+    
+    if(ur=="PlayerOne")
+    {
+      //  $("#game").show();
+       $(".name-input-group").hide();
+    }
   }
-  playerOne.currentChoice=ohSnap.playerOne.playerOne.currentChoice;
-
+  sessionStorage.setItem("currentChoice", playerOne.currentChoice);
 }
 else 
 {
@@ -326,9 +390,19 @@ if (snapshot.child("/playerTwo").exists()) {
   }
   else{
     playerTwoOpen=false;
+    playerTwo.playerName=ohSnap.playerTwo.playerTwo.playerName;
+    playerTwo.currentChoice=ohSnap.playerTwo.playerTwo.currentChoice;
+    playerTwo.wins=ohSnap.playerTwo.playerTwo.wins;
+    playerTwo.losses=ohSnap.playerTwo.playerTwo.losses;
+    
+   if(ur=="PlayerTwo") 
+   {
+    //  $("#game").show();
+     $(".name-input-group").hide();
+   }
   }
   playerTwo.currentChoice=ohSnap.playerTwo.playerTwo.currentChoice;
-
+  sessionStorage.setItem("currentChoice", playerTwo.currentChoice);
 }
 else{
   // console.log("Player two is open")
@@ -336,7 +410,7 @@ else{
 }
 // console.log(playerOne)
 // console.log(playerTwo)
-  if(playerOne.currentChoice!=="" && playerTwo.currentChoice!=="")
+  if(playerOne.currentChoice!=="" && playerTwo.currentChoice!=="")////check RPS
   {
     if((playerOne.currentChoice=="Rock" && playerTwo.currentChoice=="Rock")||     (playerOne.currentChoice=="Paper" && playerTwo.currentChoice=="Paper")||
     (playerOne.currentChoice=="Scissors" && playerTwo.currentChoice=="Scissors"))
@@ -350,28 +424,53 @@ else{
       {
         // console.log(ohSnap.playerOne.playerOne.playerName+" wins!")
         $(".display-4").text(ohSnap.playerOne.playerOne.playerName+" wins!");
-        playerOne.wins++;
-        playerTwo.losses++;
+        if(ur=="PlayerOne")playerOne.wins++;
+        if(ur=="PlayerTwo")playerTwo.losses++;
         // $(".display-4").text=("Tie");
         // console.log("Tie")
         // $("#game").show();
       }
       else{
         $(".display-4").text(ohSnap.playerTwo.playerTwo.playerName+" wins!");
-        playerTwo.wins++;
-        playerOne.losses++;
+        if(ur=="PlayerTwo")playerTwo.wins++;
+        if(ur=="PlayerOne")playerOne.losses++;
         // console.log(ohSnap.playerTwo.playerTwo.playerName+" wins!")
         // $("#game").show();
       }
-      $(".smack-talk-display").text(`${ohSnap.playerOne.playerOne.playerName} picked ${ohSnap.playerOne.playerOne.currentChoice} and ${ohSnap.playerTwo.playerTwo.playerName} picked ${ohSnap.playerTwo.playerTwo.currentChoice}`);
-      
-  }
+      $(".results-display").text(`${ohSnap.playerOne.playerOne.playerName} picked ${ohSnap.playerOne.playerOne.currentChoice} and ${ohSnap.playerTwo.playerTwo.playerName} picked ${ohSnap.playerTwo.playerTwo.currentChoice}`);
+      var myVar;
+
+
+    myVar = setTimeout(Reset, 3000);
+
+  } ////check RPS end
   
-});
+});//////end firebase///////////////////
 function TakeSnap()
 {
 
 }
+
+/////////////////////smack talk//////////////
+$(document).on("click",".btn-smack-talk",function() {
+        event.preventDefault();
+           smackTalk=$(".smack-talk").val().trim();
+           $(".smack-talk").val("")
+           if(youAre=="PlayerOne"){
+            smackTalk=playerOne.playerName + " says: "+smackTalk
+           }
+        if(youAre=="PlayerTwo"){
+          smackTalk=playerTwo.playerName + " says: "+smackTalk
+        }
+           console.log(smackTalk);
+           database.ref("/smackTalk").set({
+        smackTalk: smackTalk
+                
+      });
+      // console.log(firebase.database().ref("smackTalk"))
+        // alert("click bound to document listening for #test-element");
+        // $(".smack-talk-display").append(smackTalk+"<hr>");
+    });
   </script>
 
 </body>
