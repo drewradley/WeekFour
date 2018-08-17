@@ -455,6 +455,7 @@ function TakeSnap()
 $(document).on("click",".btn-smack-talk",function() {
         event.preventDefault();
            smackTalk=$(".smack-talk").val().trim();
+           if(smackTalk=="")return;
            $(".smack-talk").val("")
            if(youAre=="PlayerOne"){
             smackTalk=playerOne.playerName + " says: "+smackTalk
@@ -467,10 +468,22 @@ $(document).on("click",".btn-smack-talk",function() {
         smackTalk: smackTalk
                 
       });
+      var myVar;
+
+
+    myVar = setTimeout(SmackDown, 5000);
       // console.log(firebase.database().ref("smackTalk"))
         // alert("click bound to document listening for #test-element");
         // $(".smack-talk-display").append(smackTalk+"<hr>");
+    });//////////////////end smack talk
+    function SmackDown()
+    {
+      smackTalk="";
+      database.ref("/smackTalk").set({
+        smackTalk: smackTalk
     });
+  }
+    
   </script>
 
 </body>
